@@ -5,44 +5,10 @@ import (
 	"log"
 	"math"
 	"os"
-	"os/exec"
 	"strconv"
-
-	"github.com/dominikbraun/graph"
-	"github.com/dominikbraun/graph/draw"
 )
 
-var Error *log.Logger
-var (
-	filenameCounter = 0
-)
-
-type Edge struct {
-	Source      int
-	Destination int
-	Weight      int
-	Color       string
-}
-
-type Vertex struct {
-	Id    int
-	Color string
-}
-
-type Graph struct {
-	Vertices []*Vertex
-	Edges    []*Edge
-}
-
-func (vertex *Vertex) changeColor(color string) {
-	vertex.Color = color
-}
-
-func (edge *Edge) changeColor(color string) {
-	edge.Color = color
-}
-
-func Bellman_Ford(mygraph *Graph, start int) map[int]int {
+func BellmanFord(mygraph *Graph, start int) map[int]int {
 	distances := make(map[int]int)
 	visited := make(map[int]bool)
 
@@ -55,11 +21,11 @@ func Bellman_Ford(mygraph *Graph, start int) map[int]int {
 
 	for _, vertex := range mygraph.Vertices {
 		vertex.changeColor("green")
-		drawGraph(*mygraph)
+		DrawGraph(*mygraph)
 
 		for _, edge := range mygraph.Edges {
 			edge.changeColor("red")
-			drawGraph(*mygraph)
+			DrawGraph(*mygraph)
 			u := edge.Source
 			v := edge.Destination
 			w := edge.Weight
@@ -70,10 +36,10 @@ func Bellman_Ford(mygraph *Graph, start int) map[int]int {
 			}
 			edge.changeColor("black")
 
-			drawGraph(*mygraph)
+			DrawGraph(*mygraph)
 		}
 		vertex.changeColor("blue")
-		drawGraph(*mygraph)
+		DrawGraph(*mygraph)
 	}
 
 	for _, edge := range mygraph.Edges {
@@ -114,13 +80,13 @@ func main() {
 		return
 	}
 
-	distances_bf := Bellman_Ford(&gr, startVertex)
+	distancesBf := BellmanFord(&gr, startVertex)
 
-	fmt.Println(distances_bf)
+	fmt.Println(distancesBf)
 
 	fmt.Println("\nBellman-Ford's Shortest Paths")
 	fmt.Println("------------------------")
-	for vertex, distance := range distances_bf {
+	for vertex, distance := range distancesBf {
 		fmt.Printf("Vertex %d - Distance: ", vertex)
 		if distance == math.MaxInt64 {
 			fmt.Println("INF")
@@ -129,30 +95,6 @@ func main() {
 		}
 	}
 
-}
-
-func drawGraph(graph2 Graph) {
-	gg := graph.New(graph.IntHash, graph.Directed(), graph.Acyclic(), graph.Weighted())
-
-	for _, v := range graph2.Vertices {
-		_ = gg.AddVertex(v.Id, graph.VertexAttribute("color", v.Color))
-	}
-
-	for _, es := range graph2.Edges {
-		_ = gg.AddEdge(es.Source, es.Destination, graph.EdgeAttribute("label", fmt.Sprintf("%d", es.Weight)), graph.EdgeWeight(es.Weight), graph.EdgeAttribute("color", es.Color))
-	}
-
-	fname := fmt.Sprintf("%d.gv", filenameCounter)
-	filenameCounter++
-	file, _ := os.Create(fname)
-	_ = draw.DOT(gg, file, draw.GraphAttribute("size", "100,100"))
-
-	cmd := exec.Command("dot", "-Tpng", "-O", fname)
-	errBmp := cmd.Run()
-	if errBmp != nil {
-		Error.Println(errBmp)
-		os.Exit(-1)
-	}
 }
 
 func init() {

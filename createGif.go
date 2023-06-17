@@ -7,6 +7,7 @@ import (
 	"image/draw"
 	"image/gif"
 	"image/png"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -16,7 +17,10 @@ import (
 
 func main() {
 
-	outputFile := "output.gif"
+	outputFile := os.Args[1] + ".gif"
+	if len(outputFile) == 0 {
+		outputFile = "output.gif"
+	}
 
 	filepaths, err := filepath.Glob("*.png")
 	if err != nil {
@@ -28,9 +32,7 @@ func main() {
 
 	anim := gif.GIF{}
 
-	for i, filepath := range filepaths {
-		fmt.Println(filepath)
-
+	for i := range filepaths {
 		file, err := os.Open(fmt.Sprintf("%d.gv.png", i))
 		if err != nil {
 			fmt.Println("Error:", err)
@@ -47,10 +49,15 @@ func main() {
 			colornames.Red, colornames.Grey, colornames.Blue, colornames.Brown}
 
 		palettedImg := image.NewPaletted(img.Bounds(), palette)
-		draw.Draw(palettedImg, palettedImg.Bounds(), img, image.ZP, draw.Src)
+		draw.Draw(palettedImg, palettedImg.Bounds(), img, image.Point{}, draw.Src)
 
 		anim.Image = append(anim.Image, palettedImg)
 		anim.Delay = append(anim.Delay, 100)
+
+		e := os.Remove(file.Name())
+		if e != nil {
+			log.Fatal(e)
+		}
 	}
 
 	// Create the output GIF file
