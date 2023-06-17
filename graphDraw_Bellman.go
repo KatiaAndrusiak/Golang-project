@@ -42,7 +42,7 @@ func (edge *Edge) changeColor(color string) {
 	edge.Color = color
 }
 
-func Dijkstra(mygraph *Graph, start int) map[int]int {
+func Bellman_Ford(mygraph *Graph, start int) map[int]int {
 	distances := make(map[int]int)
 	visited := make(map[int]bool)
 
@@ -54,17 +54,19 @@ func Dijkstra(mygraph *Graph, start int) map[int]int {
 	distances[start] = 0
 
 	for _, vertex := range mygraph.Vertices {
-		u := minDistance(distances, visited)
-		visited[u] = true
 		vertex.changeColor("green")
 		drawGraph(*mygraph)
 
 		for _, edge := range mygraph.Edges {
 			edge.changeColor("red")
 			drawGraph(*mygraph)
+			u := edge.Source
+			v := edge.Destination
+			w := edge.Weight
 
-			if edge.Source == u && !visited[edge.Destination] && distances[u] != math.MaxInt64 && distances[u]+edge.Weight < distances[edge.Destination] {
-				distances[edge.Destination] = distances[u] + edge.Weight
+			if distances[u] != math.MaxInt64 && distances[v] > (distances[u]+w) {
+				distances[v] = distances[u] + w
+				visited[v] = true
 			}
 			edge.changeColor("black")
 
@@ -74,21 +76,16 @@ func Dijkstra(mygraph *Graph, start int) map[int]int {
 		drawGraph(*mygraph)
 	}
 
-	return distances
-}
-
-func minDistance(distances map[int]int, visited map[int]bool) int {
-	min := math.MaxInt64
-	minIndex := -1
-
-	for vertex, distance := range distances {
-		if !visited[vertex] && distance <= min {
-			min = distance
-			minIndex = vertex
+	for _, edge := range mygraph.Edges {
+		u := edge.Source
+		v := edge.Destination
+		w := edge.Weight
+		if distances[v] > (distances[u] + w) {
+			Error.Println("There is a negative cycle")
+			os.Exit(-1)
 		}
 	}
-
-	return minIndex
+	return distances
 }
 
 func main() {
@@ -117,13 +114,13 @@ func main() {
 		return
 	}
 
-	distances := Dijkstra(&gr, startVertex)
+	distances_bf := Bellman_Ford(&gr, startVertex)
 
-	fmt.Println(distances)
+	fmt.Println(distances_bf)
 
-	fmt.Println("\nDijkstra's Shortest Paths")
+	fmt.Println("\nBellman-Ford's Shortest Paths")
 	fmt.Println("------------------------")
-	for vertex, distance := range distances {
+	for vertex, distance := range distances_bf {
 		fmt.Printf("Vertex %d - Distance: ", vertex)
 		if distance == math.MaxInt64 {
 			fmt.Println("INF")

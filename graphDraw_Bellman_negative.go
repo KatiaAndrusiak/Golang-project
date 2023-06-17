@@ -91,6 +91,52 @@ func minDistance(distances map[int]int, visited map[int]bool) int {
 	return minIndex
 }
 
+func Bellman_Ford(mygraph *Graph, start int) map[int]int {
+	distances := make(map[int]int)
+	visited := make(map[int]bool)
+
+	for _, vertex := range mygraph.Vertices {
+		distances[vertex.Id] = math.MaxInt64
+		visited[vertex.Id] = false
+	}
+
+	distances[start] = 0
+
+	for _, vertex := range mygraph.Vertices {
+		vertex.changeColor("green")
+		drawGraph(*mygraph)
+
+		for _, edge := range mygraph.Edges {
+			edge.changeColor("red")
+			drawGraph(*mygraph)
+			u := edge.Source
+			v := edge.Destination
+			w := edge.Weight
+
+			if distances[u] != math.MaxInt64 && distances[v] > (distances[u]+w) {
+				distances[v] = distances[u] + w
+				visited[v] = true
+			}
+			edge.changeColor("black")
+
+			drawGraph(*mygraph)
+		}
+		vertex.changeColor("blue")
+		drawGraph(*mygraph)
+	}
+
+	for _, edge := range mygraph.Edges {
+		u := edge.Source
+		v := edge.Destination
+		w := edge.Weight
+		if distances[v] > (distances[u] + w) {
+			Error.Println("There is a negative cycle")
+			os.Exit(-1)
+		}
+	}
+	return distances
+}
+
 func main() {
 
 	gr := Graph{
@@ -104,9 +150,9 @@ func main() {
 		Edges: []*Edge{
 			{Source: 0, Destination: 1, Weight: 4},
 			{Source: 0, Destination: 2, Weight: 1},
-			{Source: 2, Destination: 1, Weight: 2},
-			{Source: 1, Destination: 3, Weight: 1},
-			{Source: 2, Destination: 3, Weight: 5},
+			{Source: 1, Destination: 2, Weight: 2},
+			{Source: 3, Destination: 1, Weight: 1},
+			{Source: 2, Destination: 3, Weight: -5},
 			{Source: 3, Destination: 4, Weight: 3},
 		},
 	}
@@ -117,13 +163,13 @@ func main() {
 		return
 	}
 
-	distances := Dijkstra(&gr, startVertex)
+	distances_bf := Bellman_Ford(&gr, startVertex)
 
-	fmt.Println(distances)
+	fmt.Println(distances_bf)
 
-	fmt.Println("\nDijkstra's Shortest Paths")
+	fmt.Println("\nBellman-Ford's Shortest Paths")
 	fmt.Println("------------------------")
-	for vertex, distance := range distances {
+	for vertex, distance := range distances_bf {
 		fmt.Printf("Vertex %d - Distance: ", vertex)
 		if distance == math.MaxInt64 {
 			fmt.Println("INF")
