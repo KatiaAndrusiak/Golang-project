@@ -51,7 +51,7 @@ func DrawGraph(graph2 Graph) {
 	}
 
 	for _, es := range graph2.Edges {
-		_ = gg.AddEdge(es.Source, es.Destination, graph.EdgeAttribute("label", fmt.Sprintf("%d", es.Weight)), graph.EdgeWeight(es.Weight), graph.EdgeAttribute("color", es.Color))
+		_ = gg.AddEdge(es.Source, es.Destination, graph.EdgeAttribute("label", fmt.Sprintf("%d", es.Weight)), graph.EdgeAttribute("color", es.Color))
 	}
 
 	fname := fmt.Sprintf("%d.gv", filenameCounter)

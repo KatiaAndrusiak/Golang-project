@@ -47,8 +47,8 @@ func BellmanFord(mygraph *Graph, start int) map[int]int {
 		v := edge.Destination
 		w := edge.Weight
 		if distances[v] > (distances[u] + w) {
-			Error.Println("There is a negative cycle")
-			os.Exit(-1)
+			log.Println("There is a negative cycle")
+			os.Exit(0)
 		}
 	}
 	return distances
