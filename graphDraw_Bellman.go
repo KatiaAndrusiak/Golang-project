@@ -65,11 +65,12 @@ func main() {
 			{Id: 4, Color: "black"},
 		},
 		Edges: []*Edge{
-			{Source: 0, Destination: 1, Weight: 4},
-			{Source: 0, Destination: 2, Weight: 1},
-			{Source: 2, Destination: 1, Weight: 2},
-			{Source: 1, Destination: 3, Weight: 1},
-			{Source: 2, Destination: 3, Weight: 5},
+			{Source: 0, Destination: 1, Weight: 5},
+			{Source: 1, Destination: 3, Weight: 3},
+			{Source: 4, Destination: 2, Weight: -1},
+			{Source: 2, Destination: 0, Weight: 3},
+			{Source: 2, Destination: 1, Weight: -4},
+			{Source: 1, Destination: 4, Weight: 9},
 			{Source: 3, Destination: 4, Weight: 3},
 		},
 	}
